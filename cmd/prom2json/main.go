@@ -23,12 +23,13 @@ import (
 
 	dto "github.com/prometheus/client_model/go"
 
-	"github.com/prometheus/prom2json"
+	prom2json "github.com/morganxf/promtojson"
 )
 
 func main() {
 	cert := flag.String("cert", "", "certificate file")
 	key := flag.String("key", "", "key file")
+	timeout := flag.Duration("timeout", 0, "request timeout (no timeout by default)")
 	skipServerCertCheck := flag.Bool("accept-invalid-cert", false, "Accept any certificate during TLS handshake. Insecure, use only for testing.")
 	flag.Parse()
 
@@ -42,7 +43,7 @@ func main() {
 	mfChan := make(chan *dto.MetricFamily, 1024)
 
 	go func() {
-		err := prom2json.FetchMetricFamilies(flag.Args()[0], mfChan, *cert, *key, *skipServerCertCheck)
+		err := prom2json.FetchMetricFamilies(flag.Args()[0], mfChan, *cert, *key, *skipServerCertCheck, *timeout)
 		if err != nil {
 			log.Fatal(err)
 		}
